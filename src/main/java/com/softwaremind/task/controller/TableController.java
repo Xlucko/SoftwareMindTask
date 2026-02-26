@@ -1,5 +1,6 @@
 package com.softwaremind.task.controller;
 
+import com.softwaremind.task.controller.filter.TableFilterRequest;
 import com.softwaremind.task.dto.TableCreateOrDeleteCommand;
 import com.softwaremind.task.dto.TableDTO;
 import com.softwaremind.task.service.TableService;
@@ -17,8 +18,8 @@ public class TableController {
     private final TableService tableService;
 
     @GetMapping
-    public List<TableDTO> getAllTables() {
-        return tableService.getAllTables();
+    public List<TableDTO> getAllTables(@ModelAttribute TableFilterRequest filterRequest) {
+        return tableService.search(filterRequest);
     }
 
     @GetMapping("/{id}")

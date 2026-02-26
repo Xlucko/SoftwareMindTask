@@ -1,13 +1,16 @@
 package com.softwaremind.task.service;
 
+import com.softwaremind.task.controller.filter.TableFilterRequest;
 import com.softwaremind.task.dto.TableCreateOrDeleteCommand;
 import com.softwaremind.task.dto.TableDTO;
 import com.softwaremind.task.mapper.TableMapper;
 import com.softwaremind.task.model.SittingTable;
 import com.softwaremind.task.repository.SittingTableRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -22,6 +25,18 @@ public class TableService {
 
     public List<TableDTO> getAllTables() {
         return tableRepository.findAll().stream().map(tableMapper::toDto).toList();
+    }
+
+    public List<TableDTO> search(TableFilterRequest filterRequest) {
+        Specification<SittingTable> spec = Specification.where((root, query, cb) -> cb.conjunction());
+
+        if (StringUtils.hasText(filterRequest.getCode())) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("code"), filterRequest.getCode()));
+        }
+        if (filterRequest.getSize() != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("size"), filterRequest.getSize()));
+        }
+        return tableRepository.findAll(spec).stream().map(tableMapper::toDto).toList();
     }
 
     public TableDTO getTable(long id) {
