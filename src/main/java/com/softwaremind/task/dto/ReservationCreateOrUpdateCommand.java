@@ -9,7 +9,7 @@ import java.time.LocalTime;
 
 @NoArgsConstructor
 @Getter
-public class ReservationCreateCommand {
+public class ReservationCreateOrUpdateCommand {
     private LocalDate date;
     private LocalTime time;
     private Duration duration;

@@ -21,7 +21,7 @@ public class DbInitialData {
     private final ReservationRepository reservationRepository;
 
     @PostConstruct
-    private void addInitialTables() {
+    private void addDevValues() {
         var table1front = tableRepository.save(new SittingTable("Front-1", 4));
         tableRepository.save(new SittingTable("Front-2", 2));
         tableRepository.save(new SittingTable("Front-3", 2));

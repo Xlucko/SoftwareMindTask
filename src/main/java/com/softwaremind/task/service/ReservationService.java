@@ -1,6 +1,6 @@
 package com.softwaremind.task.service;
 
-import com.softwaremind.task.dto.ReservationCreateCommand;
+import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.dto.ReservationDTO;
 import com.softwaremind.task.exception.NoTableFoundException;
 import com.softwaremind.task.mapper.ReservationMapper;
@@ -22,15 +22,19 @@ public class ReservationService {
     private final SittingTableRepository sittingTableRepository;
     private final ReservationMapper mapper;
 
-    public Reservation getReservationById(Long id) {
-        return reservationRepository.getReferenceById(id);
+    public ReservationDTO getReservationById(Long id) {
+        return mapper.toDTO(reservationRepository.getReferenceById(id));
     }
 
     public List<ReservationDTO> getAllForDate(LocalDate localDate) {
         return reservationRepository.findByDate(localDate).stream().map(mapper::toDTO).toList();
     }
 
-    public ReservationDTO createReservation(ReservationCreateCommand createCommand) {
+    public void deleteReservation(Long id) {
+        reservationRepository.deleteById(id);
+    }
+
+    public ReservationDTO createReservation(ReservationCreateOrUpdateCommand createCommand) {
         LocalDateTime start = createCommand.getDate().atTime(createCommand.getTime());
         LocalDateTime end = start.plus(createCommand.getDuration());
 
@@ -48,5 +52,17 @@ public class ReservationService {
 
         reservation = reservationRepository.saveAndFlush(reservation);
         return mapper.toDTO(reservation);
+    }
+
+    public void updateReservation(Long id, ReservationCreateOrUpdateCommand command) {
+        Reservation reservation = reservationRepository.getReferenceById(id);
+
+        LocalDateTime start = command.getDate().atTime(command.getTime());
+        reservation.setStart(start);
+        reservation.setEnd(start.plus(command.getDuration()));
+        reservation.setName(command.getName());
+        reservation.setCount(command.getCount());
+
+        reservationRepository.save(reservation);
     }
 }

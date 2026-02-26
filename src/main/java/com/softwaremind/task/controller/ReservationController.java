@@ -1,9 +1,10 @@
 package com.softwaremind.task.controller;
 
-import com.softwaremind.task.dto.ReservationCreateCommand;
+import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.dto.ReservationDTO;
 import com.softwaremind.task.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,8 +22,24 @@ public class ReservationController {
         return reservationService.getAllForDate(localDate);
     }
 
+    @GetMapping("/{id}")
+    public ReservationDTO getReservationById(@PathVariable("id") Long id) {
+        return reservationService.getReservationById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReservation(@PathVariable("id") Long id) {
+        reservationService.deleteReservation(id);
+    }
+
+    @PutMapping("/{id}")
+    public void updateReservation(@PathVariable("id") Long id, @RequestBody ReservationCreateOrUpdateCommand command) {
+        reservationService.updateReservation(id, command);
+    }
+
     @PostMapping
-    public ReservationDTO createReservation(@RequestBody ReservationCreateCommand createCommand) {
+    public ReservationDTO createReservation(@RequestBody ReservationCreateOrUpdateCommand createCommand) {
         return reservationService.createReservation(createCommand);
     }
 
