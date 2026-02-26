@@ -1,11 +1,9 @@
 package com.softwaremind.task.controller.filter;
 
-import lombok.Getter;
-import lombok.Setter;
+public record TableFilterRequest(
+        String code,
+        Integer sizeMin,
+        Integer sizeMax
+) {
 
-@Getter
-@Setter
-public class TableFilterRequest {
-    private String code;
-    private Integer size;
 }

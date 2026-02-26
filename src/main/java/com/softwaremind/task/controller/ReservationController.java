@@ -1,13 +1,14 @@
 package com.softwaremind.task.controller;
 
+import com.softwaremind.task.controller.filter.ReservationFilterRequest;
 import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.dto.ReservationDTO;
 import com.softwaremind.task.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -18,8 +19,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping
-    public List<ReservationDTO> getReservationsForDate(@RequestParam("date") LocalDate localDate) {
-        return reservationService.getAllForDate(localDate);
+    public List<ReservationDTO> searchReservations(@ModelAttribute ReservationFilterRequest filterRequest, Pageable pageable) {
+        return reservationService.searchReservations(filterRequest, pageable);
     }
 
     @GetMapping("/{id}")
