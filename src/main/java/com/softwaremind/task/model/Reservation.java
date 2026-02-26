@@ -1,6 +1,9 @@
 package com.softwaremind.task.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,12 +30,16 @@ public class Reservation {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @NotNull
     private LocalDateTime start;
 
     @Column(name = "reservation_end")
     private LocalDateTime end;
 
+    @NotBlank
     private String name;
+
+    @Positive
     private Integer count;
 
     @ManyToOne(fetch = FetchType.LAZY)

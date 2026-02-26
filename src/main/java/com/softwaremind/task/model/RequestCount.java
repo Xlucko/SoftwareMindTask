@@ -1,8 +1,6 @@
 package com.softwaremind.task.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(indexes = @Index(columnList = "method, path", unique = true))
 public class RequestCount {
 
     public RequestCount(String method, String path, Long count) {

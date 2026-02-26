@@ -6,7 +6,9 @@ import com.softwaremind.task.mapper.TableMapper;
 import com.softwaremind.task.model.SittingTable;
 import com.softwaremind.task.repository.SittingTableRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -27,11 +29,13 @@ public class TableService {
     }
 
     public TableDTO createTable(TableCreateOrDeleteCommand command) {
+        checkUniqueCode(command.code());
         SittingTable table = new SittingTable(command.code(), command.size());
         return tableMapper.toDto(tableRepository.save(table));
     }
 
     public void updateTable(Long id, TableCreateOrDeleteCommand command) {
+        checkUniqueCode(command.code());
         SittingTable table = tableRepository.getReferenceById(id);
         table.setSize(command.size());
         table.setCode(command.code());
@@ -40,5 +44,11 @@ public class TableService {
 
     public void deleteTable(Long id) {
         tableRepository.deleteById(id);
+    }
+
+    private void checkUniqueCode(String code) {
+        if (tableRepository.existsByCode(code)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Code is not unique");
+        }
     }
 }

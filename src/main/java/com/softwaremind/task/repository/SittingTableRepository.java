@@ -20,4 +20,6 @@ public interface SittingTableRepository extends JpaRepository<SittingTable, Long
                 )
             """)
     List<SittingTable> availableTables(LocalDateTime start, LocalDateTime end, Integer size);
+
+    boolean existsByCode(String code);
 }

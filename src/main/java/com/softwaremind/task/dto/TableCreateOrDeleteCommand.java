@@ -1,7 +1,10 @@
 package com.softwaremind.task.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
 public record TableCreateOrDeleteCommand(
-        String code,
-        Integer size
+        @NotBlank String code,
+        @Positive Integer size
 ) {
 }

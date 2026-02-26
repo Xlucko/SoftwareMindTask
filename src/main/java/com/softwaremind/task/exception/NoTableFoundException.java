@@ -1,8 +1,11 @@
 package com.softwaremind.task.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.ErrorResponseException;
 
-@ResponseStatus(value = HttpStatus.CONFLICT)
-public class NoTableFoundException extends RuntimeException {
+public class NoTableFoundException extends ErrorResponseException {
+    public NoTableFoundException() {
+        super(HttpStatus.CONFLICT);
+        setDetail("No available tables found");
+    }
 }
