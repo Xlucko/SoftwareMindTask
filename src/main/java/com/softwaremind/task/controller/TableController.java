@@ -27,11 +27,13 @@ public class TableController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public TableDTO createTable(@RequestBody TableCreateOrDeleteCommand command) {
         return tableService.createTable(command);
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateTable(@PathVariable("id") Long id, @RequestBody TableCreateOrDeleteCommand command) {
         tableService.updateTable(id, command);
     }

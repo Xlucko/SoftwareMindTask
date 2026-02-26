@@ -18,7 +18,6 @@ public class TableService {
     private final TableMapper tableMapper;
 
 
-
     public List<TableDTO> getAllTables() {
         return tableRepository.findAll().stream().map(tableMapper::toDto).toList();
     }
@@ -28,14 +27,14 @@ public class TableService {
     }
 
     public TableDTO createTable(TableCreateOrDeleteCommand command) {
-        SittingTable table = new SittingTable(command.getCode(), command.getSize());
+        SittingTable table = new SittingTable(command.code(), command.size());
         return tableMapper.toDto(tableRepository.save(table));
     }
 
     public void updateTable(Long id, TableCreateOrDeleteCommand command) {
         SittingTable table = tableRepository.getReferenceById(id);
-        table.setSize(command.getSize());
-        table.setCode(command.getCode());
+        table.setSize(command.size());
+        table.setCode(command.code());
         tableRepository.save(table);
     }
 

@@ -34,11 +34,13 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateReservation(@PathVariable("id") Long id, @RequestBody ReservationCreateOrUpdateCommand command) {
         reservationService.updateReservation(id, command);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ReservationDTO createReservation(@RequestBody ReservationCreateOrUpdateCommand createCommand) {
         return reservationService.createReservation(createCommand);
     }

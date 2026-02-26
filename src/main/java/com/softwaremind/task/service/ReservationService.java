@@ -35,17 +35,17 @@ public class ReservationService {
     }
 
     public ReservationDTO createReservation(ReservationCreateOrUpdateCommand createCommand) {
-        LocalDateTime start = createCommand.getDate().atTime(createCommand.getTime());
-        LocalDateTime end = start.plus(createCommand.getDuration());
+        LocalDateTime start = createCommand.date().atTime(createCommand.time());
+        LocalDateTime end = start.plus(createCommand.duration());
 
-        var freeTables = sittingTableRepository.availableTables(start, end, createCommand.getCount());
+        var freeTables = sittingTableRepository.availableTables(start, end, createCommand.count());
         if (freeTables.isEmpty()) {
             throw new NoTableFoundException();
         }
 
         Reservation reservation = new Reservation();
-        reservation.setName(createCommand.getName());
-        reservation.setCount(createCommand.getCount());
+        reservation.setName(createCommand.name());
+        reservation.setCount(createCommand.count());
         reservation.setStart(start);
         reservation.setEnd(end);
         reservation.setTable(freeTables.getFirst());
@@ -57,11 +57,11 @@ public class ReservationService {
     public void updateReservation(Long id, ReservationCreateOrUpdateCommand command) {
         Reservation reservation = reservationRepository.getReferenceById(id);
 
-        LocalDateTime start = command.getDate().atTime(command.getTime());
+        LocalDateTime start = command.date().atTime(command.time());
         reservation.setStart(start);
-        reservation.setEnd(start.plus(command.getDuration()));
-        reservation.setName(command.getName());
-        reservation.setCount(command.getCount());
+        reservation.setEnd(start.plus(command.duration()));
+        reservation.setName(command.name());
+        reservation.setCount(command.count());
 
         reservationRepository.save(reservation);
     }
