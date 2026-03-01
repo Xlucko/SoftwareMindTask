@@ -15,7 +15,7 @@ public interface SittingTableRepository extends JpaRepository<SittingTable, Long
             SELECT t FROM SittingTable t
             WHERE
                 t.size >= ?3
-                AND NOT EXISTS (
+                AND t.id NOT IN (
                     SELECT r.table.id FROM Reservation r
                     WHERE (r.end > ?1 AND r.start < ?2)
                 )

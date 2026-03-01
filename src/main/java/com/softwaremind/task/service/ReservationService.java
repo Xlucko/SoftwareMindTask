@@ -4,9 +4,11 @@ import com.softwaremind.task.controller.filter.ReservationFilterRequest;
 import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.dto.ReservationDTO;
 import com.softwaremind.task.exception.NoTableFoundException;
+import com.softwaremind.task.exception.TargetTableNotAvailableException;
 import com.softwaremind.task.mapper.ReservationMapper;
 import com.softwaremind.task.model.Reservation;
 import com.softwaremind.task.model.Reservation_;
+import com.softwaremind.task.model.SittingTable;
 import com.softwaremind.task.model.SittingTable_;
 import com.softwaremind.task.repository.ReservationRepository;
 import com.softwaremind.task.repository.SittingTableRepository;
@@ -14,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -69,17 +73,31 @@ public class ReservationService {
         LocalDateTime start = createCommand.date().atTime(createCommand.time());
         LocalDateTime end = start.plus(createCommand.duration());
 
-        var freeTables = sittingTableRepository.availableTables(start, end, createCommand.count());
-        if (freeTables.isEmpty()) {
-            throw new NoTableFoundException();
-        }
+        List<SittingTable> freeTables = sittingTableRepository.availableTables(start, end, createCommand.count());
+        SittingTable table;
+        if (StringUtils.hasText(createCommand.table())) {
+            if (CollectionUtils.isEmpty(freeTables)) {
+                throw new TargetTableNotAvailableException(freeTables);
+            } else {
+                table = freeTables.stream().filter(t -> t.getCode().equals(createCommand.table()))
+                        .findFirst()
+                        .orElseThrow(() -> new TargetTableNotAvailableException(freeTables));
+            }
+        } else {
+            if (freeTables.isEmpty()) {
+                throw new NoTableFoundException();
+            } else {
+                freeTables.sort(Comparator.comparingInt(SittingTable::getSize));
+                table = freeTables.getFirst();
+            }
 
+        }
         Reservation reservation = new Reservation();
         reservation.setName(createCommand.name());
         reservation.setCount(createCommand.count());
         reservation.setStart(start);
         reservation.setEnd(end);
-        reservation.setTable(freeTables.getFirst());
+        reservation.setTable(table);
 
         reservation = reservationRepository.saveAndFlush(reservation);
         return mapper.toDTO(reservation);
