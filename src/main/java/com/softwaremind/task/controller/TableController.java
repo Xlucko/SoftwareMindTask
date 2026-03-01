@@ -1,9 +1,11 @@
 package com.softwaremind.task.controller;
 
+import com.softwaremind.task.controller.filter.TableFilterRequest;
 import com.softwaremind.task.dto.TableCreateOrDeleteCommand;
 import com.softwaremind.task.dto.TableDTO;
 import com.softwaremind.task.service.TableService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +19,8 @@ public class TableController {
     private final TableService tableService;
 
     @GetMapping
-    public List<TableDTO> getAllTables() {
-        return tableService.getAllTables();
+    public List<TableDTO> searchTables(@ModelAttribute TableFilterRequest filterRequest, Pageable pageable) {
+        return tableService.search(filterRequest, pageable);
     }
 
     @GetMapping("/{id}")
