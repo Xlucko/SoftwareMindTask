@@ -60,5 +60,7 @@ Authorization uses Basic auth. Only admin can create, modify or delete tables.
 
 ### Swagger
 
-[Swagger](http://localhost:8080/swagger-ui/index.html) is enabled, allowing to inspect and use REST API without need of external tools, like postman.
+[Swagger](http://localhost:8080/swagger-ui/index.html) is enabled, allowing to inspect and use REST API without need of external tools, like postman.  
+Application needs to be running to access swagger.  
+Default url is `http://localhost:8080/swagger-ui/index.html`.
 
