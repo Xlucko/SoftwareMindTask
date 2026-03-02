@@ -1,4 +1,4 @@
-package com.softwaremind.task.dto;
+package com.softwaremind.task.dto.commands;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;

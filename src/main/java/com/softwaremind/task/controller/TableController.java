@@ -1,8 +1,8 @@
 package com.softwaremind.task.controller;
 
-import com.softwaremind.task.controller.filter.TableFilterRequest;
-import com.softwaremind.task.dto.TableCreateOrDeleteCommand;
+import com.softwaremind.task.controller.search.TableSearchParams;
 import com.softwaremind.task.dto.TableDTO;
+import com.softwaremind.task.dto.commands.TableCreateOrUpdateCommand;
 import com.softwaremind.task.service.TableService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class TableController {
     private final TableService tableService;
 
     @GetMapping
-    public List<TableDTO> searchTables(@ModelAttribute TableFilterRequest filterRequest, Pageable pageable) {
+    public List<TableDTO> searchTables(@ModelAttribute TableSearchParams filterRequest, Pageable pageable) {
         return tableService.search(filterRequest, pageable);
     }
 
@@ -34,14 +34,14 @@ public class TableController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public TableDTO createTable(@RequestBody TableCreateOrDeleteCommand command) {
+    public TableDTO createTable(@RequestBody TableCreateOrUpdateCommand command) {
         return tableService.createTable(command);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateTable(@PathVariable("id") Long id, @RequestBody TableCreateOrDeleteCommand command) {
+    public void updateTable(@PathVariable("id") Long id, @RequestBody TableCreateOrUpdateCommand command) {
         tableService.updateTable(id, command);
     }
 

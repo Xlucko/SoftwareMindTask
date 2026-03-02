@@ -1,4 +1,4 @@
-package com.softwaremind.task.service;
+package com.softwaremind.task.configuration.filter;
 
 import com.softwaremind.task.model.RequestCount;
 import com.softwaremind.task.repository.RequestCountRepository;
@@ -13,7 +13,8 @@ public class RequestCountLoggingFilter extends AbstractRequestLoggingFilter {
     private final RequestCountRepository countRepository;
 
     public void increment(String method, String path) {
-        RequestCount requestCount = countRepository.findByMethodAndPath(method, path).orElseGet(() -> new RequestCount(method, path, 0L));
+        RequestCount requestCount = countRepository.findByMethodAndPath(method, path)
+                .orElseGet(() -> new RequestCount(method, path, 0L));
         requestCount.setCount(requestCount.getCount() + 1);
         countRepository.save(requestCount);
     }

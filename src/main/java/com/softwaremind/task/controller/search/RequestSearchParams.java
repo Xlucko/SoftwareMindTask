@@ -1,6 +1,6 @@
-package com.softwaremind.task.controller.filter;
+package com.softwaremind.task.controller.search;
 
-public record RequestFilterRequest(
+public record RequestSearchParams(
         String method,
         String path,
         Long minCount,

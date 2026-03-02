@@ -1,9 +1,9 @@
-package com.softwaremind.task.controller.filter;
+package com.softwaremind.task.controller.search;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record ReservationFilterRequest(
+public record ReservationSearchParams(
         LocalDate date,
         LocalTime time,
         String name,

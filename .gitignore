@@ -1,5 +1,6 @@
 HELP.md
 Zadanie techniczne Junior Java Developer.pdf
+db/
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

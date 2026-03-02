@@ -22,7 +22,10 @@ public class DbInitialData {
 
     @PostConstruct
     private void addDevValues() {
-        var table1front = tableRepository.save(new SittingTable("Front-1", 4));
+        if (tableRepository.count() > 0) {
+            return;
+        }
+        SittingTable table1front = tableRepository.save(new SittingTable("Front-1", 4));
         tableRepository.save(new SittingTable("Front-2", 2));
         tableRepository.save(new SittingTable("Front-3", 2));
         tableRepository.save(new SittingTable("Back-1", 4));

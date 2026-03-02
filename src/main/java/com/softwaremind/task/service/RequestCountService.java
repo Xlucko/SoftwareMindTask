@@ -1,6 +1,6 @@
 package com.softwaremind.task.service;
 
-import com.softwaremind.task.controller.filter.RequestFilterRequest;
+import com.softwaremind.task.controller.search.RequestSearchParams;
 import com.softwaremind.task.dto.RequestCountDTO;
 import com.softwaremind.task.model.RequestCount;
 import com.softwaremind.task.model.RequestCount_;
@@ -19,7 +19,7 @@ public class RequestCountService {
 
     private final RequestCountRepository countRepository;
 
-    public List<RequestCountDTO> getAllCounts(RequestFilterRequest filterRequest, Pageable pageable) {
+    public List<RequestCountDTO> getAllCounts(RequestSearchParams filterRequest, Pageable pageable) {
 
         Specification<RequestCount> spec = prepareSpec(filterRequest);
 
@@ -29,7 +29,7 @@ public class RequestCountService {
 
     }
 
-    private Specification<RequestCount> prepareSpec(RequestFilterRequest filterRequest) {
+    private Specification<RequestCount> prepareSpec(RequestSearchParams filterRequest) {
         Specification<RequestCount> spec = Specification.where((_, _, cb) -> cb.conjunction());
 
         if (StringUtils.hasText(filterRequest.method())) {

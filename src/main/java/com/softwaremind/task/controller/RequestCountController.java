@@ -1,6 +1,6 @@
 package com.softwaremind.task.controller;
 
-import com.softwaremind.task.controller.filter.RequestFilterRequest;
+import com.softwaremind.task.controller.search.RequestSearchParams;
 import com.softwaremind.task.dto.RequestCountDTO;
 import com.softwaremind.task.service.RequestCountService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class RequestCountController {
     private final RequestCountService requestCountService;
 
     @GetMapping
-    public List<RequestCountDTO> getAll(@ModelAttribute RequestFilterRequest filterRequest, Pageable pageable) {
+    public List<RequestCountDTO> getAll(@ModelAttribute RequestSearchParams filterRequest, Pageable pageable) {
         return requestCountService.getAllCounts(filterRequest, pageable);
     }
 }

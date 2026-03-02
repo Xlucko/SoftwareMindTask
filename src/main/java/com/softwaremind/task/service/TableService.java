@@ -1,8 +1,8 @@
 package com.softwaremind.task.service;
 
-import com.softwaremind.task.controller.filter.TableFilterRequest;
-import com.softwaremind.task.dto.TableCreateOrDeleteCommand;
+import com.softwaremind.task.controller.search.TableSearchParams;
 import com.softwaremind.task.dto.TableDTO;
+import com.softwaremind.task.dto.commands.TableCreateOrUpdateCommand;
 import com.softwaremind.task.mapper.TableMapper;
 import com.softwaremind.task.model.SittingTable;
 import com.softwaremind.task.model.SittingTable_;
@@ -25,7 +25,7 @@ public class TableService {
     private final TableMapper tableMapper;
 
 
-    public List<TableDTO> search(TableFilterRequest filterRequest, Pageable pageable) {
+    public List<TableDTO> search(TableSearchParams filterRequest, Pageable pageable) {
         Specification<SittingTable> spec = Specification.where((root, query, cb) -> cb.conjunction());
 
         if (StringUtils.hasText(filterRequest.code())) {
@@ -45,13 +45,13 @@ public class TableService {
         return tableMapper.toDto(tableRepository.getReferenceById(id));
     }
 
-    public TableDTO createTable(TableCreateOrDeleteCommand command) {
+    public TableDTO createTable(TableCreateOrUpdateCommand command) {
         checkUniqueCode(command.code());
         SittingTable table = new SittingTable(command.code(), command.size());
         return tableMapper.toDto(tableRepository.save(table));
     }
 
-    public void updateTable(Long id, TableCreateOrDeleteCommand command) {
+    public void updateTable(Long id, TableCreateOrUpdateCommand command) {
         checkUniqueCode(command.code());
         SittingTable table = tableRepository.getReferenceById(id);
         table.setSize(command.size());

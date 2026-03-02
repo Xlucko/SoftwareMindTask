@@ -1,8 +1,8 @@
 package com.softwaremind.task.service;
 
-import com.softwaremind.task.controller.filter.ReservationFilterRequest;
-import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
+import com.softwaremind.task.controller.search.ReservationSearchParams;
 import com.softwaremind.task.dto.ReservationDTO;
+import com.softwaremind.task.dto.commands.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.exception.NoTableFoundException;
 import com.softwaremind.task.exception.TargetTableNotAvailableException;
 import com.softwaremind.task.mapper.ReservationMapper;
@@ -35,7 +35,7 @@ public class ReservationService {
         return mapper.toDTO(reservationRepository.getReferenceById(id));
     }
 
-    public List<ReservationDTO> searchReservations(ReservationFilterRequest filterRequest, Pageable pageable) {
+    public List<ReservationDTO> searchReservations(ReservationSearchParams filterRequest, Pageable pageable) {
 
         Specification<Reservation> spec = Specification.where((root, query, cb) -> cb.conjunction());
 

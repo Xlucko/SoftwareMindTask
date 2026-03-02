@@ -1,8 +1,8 @@
 package com.softwaremind.task.controller;
 
-import com.softwaremind.task.controller.filter.ReservationFilterRequest;
-import com.softwaremind.task.dto.ReservationCreateOrUpdateCommand;
+import com.softwaremind.task.controller.search.ReservationSearchParams;
 import com.softwaremind.task.dto.ReservationDTO;
+import com.softwaremind.task.dto.commands.ReservationCreateOrUpdateCommand;
 import com.softwaremind.task.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping
-    public List<ReservationDTO> searchReservations(@ModelAttribute ReservationFilterRequest filterRequest, Pageable pageable) {
+    public List<ReservationDTO> searchReservations(@ModelAttribute ReservationSearchParams filterRequest, Pageable pageable) {
         return reservationService.searchReservations(filterRequest, pageable);
     }
 
