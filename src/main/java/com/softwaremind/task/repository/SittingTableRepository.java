@@ -22,5 +22,17 @@ public interface SittingTableRepository extends JpaRepository<SittingTable, Long
             """)
     List<SittingTable> availableTables(LocalDateTime start, LocalDateTime end, Integer size);
 
+    @Query("""
+            SELECT t FROM SittingTable t
+            WHERE
+                t.size >= ?3
+                AND t.id NOT IN (
+                    SELECT r.table.id FROM Reservation r
+                    WHERE (r.end > ?1 AND r.start < ?2)
+                        AND r.id != ?4
+                )
+            """)
+    List<SittingTable> availableTablesIgnoringReservationById(LocalDateTime start, LocalDateTime end, Integer size, Long id);
+
     boolean existsByCode(String code);
 }

@@ -2,7 +2,8 @@ package com.softwaremind.task.controller;
 
 import com.softwaremind.task.controller.search.ReservationSearchParams;
 import com.softwaremind.task.dto.ReservationDTO;
-import com.softwaremind.task.dto.commands.ReservationCreateOrUpdateCommand;
+import com.softwaremind.task.dto.commands.ReservationCreateCommand;
+import com.softwaremind.task.dto.commands.ReservationUpdateCommand;
 import com.softwaremind.task.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,13 +37,13 @@ public class ReservationController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateReservation(@PathVariable("id") Long id, @RequestBody ReservationCreateOrUpdateCommand command) {
+    public void updateReservation(@PathVariable("id") Long id, @RequestBody ReservationUpdateCommand command) {
         reservationService.updateReservation(id, command);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReservationDTO createReservation(@RequestBody ReservationCreateOrUpdateCommand createCommand) {
+    public ReservationDTO createReservation(@RequestBody ReservationCreateCommand createCommand) {
         return reservationService.createReservation(createCommand);
     }
 

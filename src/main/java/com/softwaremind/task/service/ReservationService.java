@@ -2,7 +2,8 @@ package com.softwaremind.task.service;
 
 import com.softwaremind.task.controller.search.ReservationSearchParams;
 import com.softwaremind.task.dto.ReservationDTO;
-import com.softwaremind.task.dto.commands.ReservationCreateOrUpdateCommand;
+import com.softwaremind.task.dto.commands.ReservationCreateCommand;
+import com.softwaremind.task.dto.commands.ReservationUpdateCommand;
 import com.softwaremind.task.exception.NoTableFoundException;
 import com.softwaremind.task.exception.TargetTableNotAvailableException;
 import com.softwaremind.task.mapper.ReservationMapper;
@@ -16,9 +17,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -69,29 +73,14 @@ public class ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    public ReservationDTO createReservation(ReservationCreateOrUpdateCommand createCommand) {
+    @Transactional
+    public ReservationDTO createReservation(ReservationCreateCommand createCommand) {
         LocalDateTime start = createCommand.date().atTime(createCommand.time());
         LocalDateTime end = start.plus(createCommand.duration());
 
         List<SittingTable> freeTables = sittingTableRepository.availableTables(start, end, createCommand.count());
-        SittingTable table;
-        if (StringUtils.hasText(createCommand.table())) {
-            if (CollectionUtils.isEmpty(freeTables)) {
-                throw new TargetTableNotAvailableException(freeTables);
-            } else {
-                table = freeTables.stream().filter(t -> t.getCode().equals(createCommand.table()))
-                        .findFirst()
-                        .orElseThrow(() -> new TargetTableNotAvailableException(freeTables));
-            }
-        } else {
-            if (freeTables.isEmpty()) {
-                throw new NoTableFoundException();
-            } else {
-                freeTables.sort(Comparator.comparingInt(SittingTable::getSize));
-                table = freeTables.getFirst();
-            }
-
-        }
+        SittingTable table = StringUtils.hasText(createCommand.table()) ?
+                findDesiredTable(freeTables, createCommand.table()) : findBestTable(freeTables);
         Reservation reservation = new Reservation();
         reservation.setName(createCommand.name());
         reservation.setCount(createCommand.count());
@@ -99,19 +88,74 @@ public class ReservationService {
         reservation.setEnd(end);
         reservation.setTable(table);
 
-        reservation = reservationRepository.saveAndFlush(reservation);
+        reservation = reservationRepository.save(reservation);
         return mapper.toDTO(reservation);
     }
 
-    public void updateReservation(Long id, ReservationCreateOrUpdateCommand command) {
+    @Transactional
+    public void updateReservation(Long id, ReservationUpdateCommand command) {
         Reservation reservation = reservationRepository.getReferenceById(id);
 
-        LocalDateTime start = command.date().atTime(command.time());
-        reservation.setStart(start);
-        reservation.setEnd(start.plus(command.duration()));
-        reservation.setName(command.name());
-        reservation.setCount(command.count());
+        LocalDate newDate = command.date() != null ?
+                command.date() : reservation.getStart().toLocalDate();
+        LocalDateTime newStart = command.time() != null ?
+                newDate.atTime(command.time()) : newDate.atTime(reservation.getStart().toLocalTime());
+        LocalDateTime newEnd = command.duration() != null ?
+                newStart.plus(command.duration()) :
+                newStart.plus(Duration.between(reservation.getStart(), reservation.getEnd()));
+        Integer newCount = command.count() != null ?
+                command.count() : reservation.getCount();
+        SittingTable table = reservation.getTable();
+
+        if (mightRequireTableChange(reservation, newCount, newStart, newEnd)) {
+            List<SittingTable> availableTables = sittingTableRepository.availableTablesIgnoringReservationById(newStart, newEnd, newCount, id);
+            if (StringUtils.hasText(command.table())) {
+                table = findDesiredTable(availableTables, command.table());
+            } else if (!availableTables.contains(table)) {
+                table = findBestTable(availableTables);
+            }
+        }
+
+        if (StringUtils.hasText(command.name())) {
+            reservation.setName(command.name());
+        }
+        reservation.setStart(newStart);
+        reservation.setEnd(newEnd);
+        reservation.setCount(newCount);
+        reservation.setTable(table);
 
         reservationRepository.save(reservation);
+    }
+
+    private SittingTable findDesiredTable(List<SittingTable> freeTables, String desiredTable) {
+        if (CollectionUtils.isEmpty(freeTables)) {
+            throw new TargetTableNotAvailableException(freeTables);
+        } else {
+            return freeTables.stream().filter(t -> t.getCode().equals(desiredTable))
+                    .findFirst()
+                    .orElseThrow(() -> new TargetTableNotAvailableException(freeTables));
+        }
+    }
+
+    private SittingTable findBestTable(List<SittingTable> freeTables) {
+        if (freeTables.isEmpty()) {
+            throw new NoTableFoundException();
+        } else {
+            freeTables.sort(Comparator.comparingInt(SittingTable::getSize));
+            return freeTables.getFirst();
+        }
+    }
+
+    private boolean mightRequireTableChange(Reservation reservation, Integer newCount, LocalDateTime newStart, LocalDateTime newEnd) {
+        if (newCount > reservation.getTable().getSize()) {
+            return true;
+        }
+        if (newStart != reservation.getStart()) {
+            return true;
+        }
+        if (newEnd != reservation.getEnd()) {
+            return true;
+        }
+        return false;
     }
 }

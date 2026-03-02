@@ -1,7 +1,8 @@
 package com.softwaremind.task.service;
 
 import com.softwaremind.task.controller.search.ReservationSearchParams;
-import com.softwaremind.task.dto.commands.ReservationCreateOrUpdateCommand;
+import com.softwaremind.task.dto.commands.ReservationCreateCommand;
+import com.softwaremind.task.dto.commands.ReservationUpdateCommand;
 import com.softwaremind.task.model.Reservation;
 import com.softwaremind.task.model.SittingTable;
 import com.softwaremind.task.repository.ReservationRepository;
@@ -106,7 +107,7 @@ class ReservationServiceTest {
         ));
 
         //when:
-        var command = new ReservationCreateOrUpdateCommand(
+        var command = new ReservationCreateCommand(
                 reservationDate, reservationTime, Duration.ofHours(2L),
                 "Dora", 3, null);
         var returnedReservation = reservationService.createReservation(command);
@@ -138,7 +139,7 @@ class ReservationServiceTest {
                 .getId();
 
         //when:
-        var command = new ReservationCreateOrUpdateCommand(reservationDate, reservationTime, Duration.ofMinutes(90L),
+        var command = new ReservationUpdateCommand(reservationDate, reservationTime, Duration.ofMinutes(90L),
                 "Fiona", 2, null);
         reservationService.updateReservation(reservationId, command);
 
@@ -148,6 +149,37 @@ class ReservationServiceTest {
         assertEquals(Duration.ofMinutes(90L), Duration.between(updatedReservation.getStart(), updatedReservation.getEnd()));
         assertEquals(2, updatedReservation.getCount());
         assertEquals("Fiona", updatedReservation.getName());
+    }
+
+    @Test
+    void whenUpsizingReservation_reassignTable() {
+        //given:
+        LocalDateTime reservationStart = LocalDate.now().plusDays(5L).atTime(18, 15);
+        LocalDateTime reservationEnd = reservationStart.plusHours(2L);
+
+        var table1 = tableRepository.save(new SittingTable("test-res-table-1", 2));
+        tableRepository.save(new SittingTable("test-res-table-2", 4));
+        tableRepository.save(new SittingTable("test-res-table-3", 3));
+        var reservationId = reservationRepository.save(new Reservation(
+                        reservationStart,
+                        reservationEnd,
+                        "Fiona", 2, table1
+                ))
+                .getId();
+
+        //when:
+        var command = new ReservationUpdateCommand(null, null, null,
+                null, 3, null);
+        reservationService.updateReservation(reservationId, command);
+
+        //then:
+        var updatedReservation = reservationRepository.getReferenceById(reservationId);
+        assertEquals(3, updatedReservation.getCount());
+        assertEquals("Fiona", updatedReservation.getName());
+        assertNotEquals(table1, updatedReservation.getTable());
+        assertEquals(3, updatedReservation.getTable().getSize());
+        assertEquals(reservationStart, updatedReservation.getStart());
+        assertEquals(reservationEnd, updatedReservation.getEnd());
     }
 
     @Test
